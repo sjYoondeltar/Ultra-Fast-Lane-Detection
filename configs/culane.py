@@ -1,6 +1,6 @@
 # DATA
 dataset='CULane'
-data_root = None
+data_root = '/mnt/d/culane/'
 
 # TRAIN
 epoch = 50
