@@ -47,12 +47,10 @@ def main():
 
     if cfg.dataset == 'CULane':
         cls_num_per_lane = 18
-        # img_w, img_h = 1640, 590
         img_w, img_h = 320, 200
         row_anchor = culane_row_anchor
     elif cfg.dataset == 'Tusimple':
         cls_num_per_lane = 56
-        # img_w, img_h = 1280, 720
         img_w, img_h = 320, 180
         row_anchor = tusimple_row_anchor
     else:
@@ -85,10 +83,6 @@ def main():
         if udp_cam.is_img==True :
             img_cam = udp_cam.raw_img[-180:, :, :]
             
-            # img_cam = cv2.imread("/home/sjyoon/projects/Ultra-Fast-Lane-Detection/tmp/01325.jpg")
-            
-            # img_cam = cv2.imread("/home/sjyoon/projects/Ultra-Fast-Lane-Detection/tmp/1234.png")
-            
             imgs = img_transforms(Image.fromarray(img_cam)).view([-1, 3, 288, 800])
 
             imgs = imgs.cuda()
@@ -99,8 +93,7 @@ def main():
 
             col_sample = np.linspace(0, 800 - 1, cfg.griding_num)
             col_sample_w = col_sample[1] - col_sample[0]
-
-
+            
             out_j = out[0].data.cpu().numpy()
             out_j = out_j[:, ::-1, :]
             prob = scipy.special.softmax(out_j[:-1, :, :], axis=0)
@@ -112,13 +105,11 @@ def main():
             out_j = loc
 
             for i in range(out_j.shape[1]):
-                print(out_j[:, i])
                 if np.sum(out_j[:, i] != 0) > 2:
                     for k in range(out_j.shape[0]):
                         
                         if out_j[k, i] > 0:
                             ppp = (int(out_j[k, i] * col_sample_w * img_w / 800) - 1, int(img_h * (row_anchor[cls_num_per_lane-1-k]/288)) - 1 )
-                            print(ppp)
                             cv2.circle(img_cam,ppp,10,(0,255,0),-1)
                             
             cv2.imshow('lane show', cv2.resize(img_cam, (img_cam.shape[1]*2, img_cam.shape[0]*2)))
